@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tidslinje – Datadrevet</title>
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #F2F4F7;
+}
+
+.timeline-wrapper {
+  padding: 32px;
+  max-width: 1600px;
+  margin: auto;
+}
+
+.page-title {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.main-title {
+  font-size: 34px;
+  font-weight: 700;
+  color: #1F2933;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #4B5563;
+}
+
+.header, .row {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 120px 1fr 1.3fr;
+  gap: 14px;
+}
+
+.header {
+  margin: 32px 0 20px;
+  align-items: center;
+}
+
+.euroflex-header {
+  color: #3AAE84;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.felles-header {
+  color: #2563EB;
+  font-size: 26px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.month-row {
+  text-align: center;
+  margin: 28px 0 12px;
+  font-weight: 700;
+  color: #6B7280;
+}
+
+.row {
+  margin-bottom: 14px;
+  align-items: stretch;
+}
+
+.timeline-cell {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.line {
+  width: 3px;
+  background: #E2E8F0;
+  height: 100%;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.euroflex-dot { background: #3AAE84; }
+.felles-dot { background: #2563EB; }
+
+.box {
+  background: #fff;
+  border-radius: 12px;
+  align-self: center;
+}
+
+.box.long { padding: 22px 24px; }
+.box.short { padding: 12px 14px; }
+
+.box.long.euroflex {
+  background: #ECF6F2;
+  border-left: 6px solid #3AAE84;
+}
+.box.short.euroflex { border-left: 6px solid #3AAE84; }
+
+.box.long.felles {
+  background: #EEF5FF;
+  border-left: 6px solid #2563EB;
+}
+.box.short.felles { border-left: 6px solid #2563EB; }
+
+.title {
+  font-weight: 600;
+  font-size: 16px;
+  color: #1F2933;
+}
+.box.long .title { font-size: 18px; }
+
+.desc { margin-top: 4px; opacity: .9; }
+
+.date {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  opacity: .85;
+}
+</style>
+</head>
+
+<body>
+<div class="timeline-wrapper">
+
+<div class="page-title">
+  <div class="main-title">Tidslinje</div>
+  <div class="subtitle">Datadrevet oversikt over aktiviteter frem til 2027</div>
+</div>
+
+<div class="header">
+  <div class="euroflex-header">Euroflex</div>
+  <div></div><div></div><div></div>
+  <div class="felles-header">Felles Fleksibilitet</div>
+</div>
+
+<div id="timeline"></div>
+
+</div>
+
+<script>
+/* ===================== DATA ===================== */
+const timelineData = [
+  {
+    prosjekt: "Euroflex",
+    type: "Fase",
+    tittel: "Handelssesong",
+    beskrivelse: "Vintersesong",
+    start: "2025-10-01",
+    slutt: "2026-03-30"
+  },
+  {
+    prosjekt: "Euroflex",
+    type: "Event",
+    tittel: "Stormøte",
+    beskrivelse: "Stormøte i Oslo",
+    start: "2026-01-20",
+    slutt: "2026-01-21"
+  },
+  {
+    prosjekt: "Euroflex",
+    type: "Fase",
+    tittel: "Arbeid med midtveisrapport Euroflex",
+    beskrivelse: "Midtveisrapportering av Euroflex",
+    start: "2026-02-02",
+    slutt: "2026-06-15"
+  },
+  {
+    prosjekt: "Felles",
+    type: "Fase",
+    tittel: "Arbeid med forprosjektsøknad til Enova",
+    beskrivelse: "Felles Fleksibilitet – forprosjektsøknad",
+    start: "2026-02-02",
+    slutt: "2026-02-13"
+  },
+  {
+    prosjekt: "Felles",
+    type: "Milepæl",
+    tittel: "Konsortiepartnere beslutter deltakelse",
+    beskrivelse: "Beslutning om deltakelse i forprosjektsøknad",
+    start: "2026-02-10",
+    slutt: "2026-02-10"
+  },
+  {
+    prosjekt: "Felles",
+    type: "Milepæl",
+    tittel: "Søknadsfrist forprosjekt (Enova)",
+    beskrivelse: "Frist for innlevering av søknad til Enova",
+    start: "2026-02-13",
+    slutt: "2026-02-13"
+  },
+  {
+    prosjekt: "Euroflex",
+    type: "Møte",
+    tittel: "Euroflex styringsgruppemøte",
+    beskrivelse: "Styringsgruppemøte i Euroflex",
+    start: "2026-03-06",
+    slutt: "2026-03-06"
+  },
+  {
+    prosjekt: "Felles",
+    type: "Milepæl",
+    tittel: "Enova – beslutning forprosjekt",
+    beskrivelse: "Forventet beslutning om innvilgelse",
+    start: "2026-03-15",
+    slutt: "2026-03-17"
+  },
+  {
+    prosjekt: "Euroflex",
+    type: "Fase",
+    tittel: "Handelssesong",
+    beskrivelse: "Sommersesong",
+    start: "2026-04-01",
+    slutt: "2026-09-30"
+  },
+  {
+    prosjekt: "Felles",
+    type: "Fase",
+    tittel: "Skrive søknad Fellesflex hovedprosjekt",
+    beskrivelse: "Utarbeidelse av søknad til Enova – hovedprosjekt",
+    start: "2026-03-15",
+    slutt: "2026-08-14"
+  },
+  {
+    prosjekt: "Euroflex",
+    type: "Event",
+    tittel: "Stormøte Ålesund",
+    beskrivelse: "Stormøte med deltakere i Ålesund",
+    start: "2026-06-02",
+    slutt: "2026-06-03"
+  },
+  {
+    prosjekt: "Felles",
+    type: "Event",
+    tittel: "Invitasjonsarrangement Felles Fleksibilitet",
+    beskrivelse: "Rekruttering av DSO og partnere",
+    start: "2026-06-05",
+    slutt: "2026-06-05"
+  },
+  {
+    prosjekt: "Euroflex",
+    type: "Møte",
+    tittel: "Styringsgruppemøte Euroflex",
+    beskrivelse: "Styringsgruppemøte midten av juni",
+    start: "2026-06-15",
+    slutt: "2026-06-15"
+  },
+  {
+    prosjekt: "Felles",
+    type: "Milepæl",
+    tittel: "Søknadsfrist Enova – hovedprosjekt",
+    beskrivelse: "Endelig frist for innlevering",
+    start: "2026-08-14",
+    slutt: "2026-08-14"
+  },
+  {
+    prosjekt: "Euroflex",
+    type: "Fase",
+    tittel: "Handelssesong",
+    beskrivelse: "Vintersesong",
+    start: "2026-10-01",
+    slutt: "2027-03-31"
+  },
+  {
+    prosjekt: "Euroflex",
+    type: "Event",
+    tittel: "Stormøte",
+    beskrivelse: "Dato og lokasjon ikke fastsatt",
+    start: "2026-12-01",
+    slutt: "2026-12-02"
+  },
+  {
+    prosjekt: "Euroflex",
+    type: "Event",
+    tittel: "Sluttkonferanse",
+    beskrivelse: "Sluttkonferanse i Kristiansand",
+    start: "2027-06-15",
+    slutt: "2027-06-16"
+  }
+];
+
+/* ===================== LOGIKK ===================== */
+const icons = { Fase:"🔄", Event:"📣", Milepæl:"🎯", Møte:"🗓️" };
+
+function formatDate(d) {
+  const x = new Date(d);
+  return `${String(x.getDate()).padStart(2,"0")}.${String(x.getMonth()+1).padStart(2,"0")}.${x.getFullYear()}`;
+}
+
+function daysBetween(a,b){
+  return Math.ceil((b-a)/86400000)+1;
+}
+
+function renderTimeline() {
+  const container = document.getElementById("timeline");
+  let currentMonth = "";
+
+  timelineData.sort((a,b)=>new Date(a.start)-new Date(b.start));
+
+  timelineData.forEach(item=>{
+    const start = new Date(item.start);
+    const end = new Date(item.slutt);
+    const monthLabel = start.toLocaleString("no-NO",{month:"long",year:"numeric"});
+
+    if(monthLabel !== currentMonth){
+      currentMonth = monthLabel;
+      container.insertAdjacentHTML("beforeend",
+        `<div class="month-row">${monthLabel.charAt(0).toUpperCase()+monthLabel.slice(1)}</div>`
+      );
+    }
+
+    const days = daysBetween(start,end);
+    const height = Math.min(420, Math.max(64, days*6));
+
+    const side = item.prosjekt === "Euroflex" ? "euroflex" : "felles";
+    const dot = side === "euroflex" ? "euroflex-dot" : "felles-dot";
+    const size = days > 2 ? "long" : "short";
+
+    const left = side==="euroflex"
+      ? `<div class="box ${size} euroflex">
+           <div class="title">${icons[item.type]} ${item.tittel}</div>
+           <div class="desc">${item.beskrivelse}</div>
+           <div class="date">${formatDate(start)} – ${formatDate(end)}</div>
+         </div>`
+      : `<div></div>`;
+
+    const right = side==="felles"
+      ? `<div class="box ${size} felles">
+           <div class="title">${icons[item.type]} ${item.tittel}</div>
+           <div class="desc">${item.beskrivelse}</div>
+           <div class="date">${formatDate(start)} – ${formatDate(end)}</div>
+         </div>`
+      : `<div></div>`;
+
+    container.insertAdjacentHTML("beforeend",`
+      <div class="row" style="min-height:${height}px">
+        ${left}
+        <div></div>
+        <div class="timeline-cell"><div class="line"></div><div class="dot ${dot}"></div></div>
+        <div></div>
+        ${right}
+      </div>
+    `);
+  });
+}
+
+renderTimeline();
+</script>
+
+</body>
+</html>
